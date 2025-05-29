@@ -4,141 +4,451 @@
     <meta charset="UTF-8">
     <title>Screen Recorder</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
-            text-align: center;
-            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
 
         h1 {
             color: #333;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #007bff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .profile-btn:hover {
+            background: #0056b3;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
         }
 
         button {
             padding: 12px 24px;
-            margin: 10px;
             font-size: 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         #startBtn {
-            background-color: #28a745;
+            background: #28a745;
             color: white;
+        }
+
+        #startBtn:hover {
+            background: #218838;
+        }
+
+        #startBtn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
         }
 
         #stopBtn {
-            background-color: #dc3545;
+            background: #dc3545;
             color: white;
         }
 
+        #stopBtn:hover {
+            background: #c82333;
+        }
+
+        #stopBtn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
         video {
-            margin-top: 30px;
-            width: 80%;
+            width: 100%;
             max-width: 700px;
-            border: 2px solid #ccc;
             border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #000;
+            margin-bottom: 20px;
+        }
+
+        .video-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .secondary-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .secondary-btn:hover {
+            background: #545b62;
+        }
+
+        /* Profile Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 15% auto;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close:hover {
+            color: #dc3545;
+        }
+
+        .profile-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            background: #007bff;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .username {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .email{
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .user-role {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .recording-indicator {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 99;
+        }
+
+        .recording-indicator::before {
+            content: '●';
+            margin-right: 6px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .recording-indicator {
+                top: 10px;
+                right: 10px;
+            }
         }
     </style>
 </head>
 <body>
+<div class="recording-indicator" id="recordingIndicator">
+    Recording...
+</div>
 
-    <h1> Screen Recorder </h1>
-	
-    <button id="startBtn">Start Recording</button>
-    <button id="stopBtn" disabled>Stop Recording</button>
+<div class="container">
+    <div class="header">
+        <h1>Screen Recorder</h1>
+        <button class="profile-btn" id="profileBtn" title="Profile">
+            U
+        </button>
+    </div>
 
-    <video id="preview" autoplay muted></video>
-    <button onclick="location.href='/video'">Go to My Videos</button>
-    
-    <form action="/logout" method="post">
-    	<button type="submit">Logout</button>
-	</form>
-    
+    <div class="controls">
+        <button id="startBtn">Start Recording</button>
+        <button id="stopBtn" disabled>Stop Recording</button>
+    </div>
 
-    <script>
-   
-        let mediaRecorder;
-        let recordedChunks = [];
+    <div class="video-container">
+        <video id="preview" autoplay muted></video>
+    </div>
 
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const video = document.getElementById('preview');
+    <div class="action-buttons">
+        <button class="secondary-btn" onclick="location.href='/video'">
+            My Videos
+        </button>
+    </div>
+</div>
 
-        startBtn.addEventListener('click', async () => {
-            recordedChunks = [];
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal">&times;</span>
+        <div class="profile-info">
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <div class="username" id="username">Loading...</div>
+            <div class="email" id="email">Loading...</div>
+            <div class="user-role">User</div>
+        </div>
+        <form action="/logout" method="post" style="margin: 0;">
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
+    </div>
+</div>
 
-            try {
-                const stream = await navigator.mediaDevices.getDisplayMedia({
-                    video: true,
-                    audio: true
-                });
+<script>
+    let mediaRecorder;
+    let recordedChunks = [];
 
-                video.srcObject = stream;
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const video = document.getElementById('preview');
+    const recordingIndicator = document.getElementById('recordingIndicator');
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeModal = document.getElementById('closeModal');
+    const usernameEl = document.getElementById('username');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileEmail = document.getElementById('email');
 
-                mediaRecorder = new MediaRecorder(stream);
+    // Profile Modal
+    profileBtn.addEventListener('click', async () => {
+        profileModal.style.display = 'block';
+        await loadUserProfile();
+    });
 
-                mediaRecorder.ondataavailable = function (e) {
-                    if (e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                    }
-                };
+    closeModal.addEventListener('click', () => {
+        profileModal.style.display = 'none';
+    });
 
-                mediaRecorder.onstop = async function () {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+    window.addEventListener('click', (event) => {
+        if (event.target === profileModal) {
+            profileModal.style.display = 'none';
+        }
+    });
 
-                   
-                    video.src = URL.createObjectURL(blob);
-                    video.controls = true;
-                    video.muted = false;
 
-                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                    const filename = `recording-${timestamp}.webm`;
-                    const formData = new FormData();
-                    formData.append('file', blob, filename);
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('http://localhost:8080/api/user', {
+                method: 'GET',
+                credentials: 'include'
+            });
 
-                    try {
-                        const response = await fetch('http://localhost:8080/upload', {
-                            method: 'POST',
-                            body: formData,
-                            credentials: 'include'
-                        });
-
-                        if (response.ok) {
-                            alert('Upload successful!');
-                        } else {
-                            alert(' Upload failed: ' + response.statusText);
-                        }
-                    } catch (err) {
-                        console.error('Upload error:', err);
-                        alert('Upload error: ' + err.message);
-                    }
-                };
-
-                mediaRecorder.start();
-
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-            } catch (err) {
-                console.error("Error accessing screen:", err);
-                alert("Could not start recording: " + err.message);
+            if (response.ok) {
+                const data = await response.json();
+                const username = data.username || 'User';
+                const email= data.email;
+                console.log(data);
+                usernameEl.textContent = username;
+                profileAvatar.textContent = username.charAt(0).toUpperCase();
+                profileEmail.textContent = username.charAt(0);
+                profileBtn.textContent = username.charAt(0).toUpperCase();
+            } else {
+                usernameEl.textContent = 'Guest';
+                profileAvatar.textContent = '😊';
+                profileBtn.textContent = 'Guest';
             }
-        });
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            usernameEl.textContent = 'User';
+            profileAvatar.textContent = 'U';
+            profileBtn.textContent = 'U';
+        }
+    }
 
-        stopBtn.addEventListener('click', () => {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-            }
+    loadUserProfile();
 
-            let tracks = video.srcObject?.getTracks();
-            tracks?.forEach(track => track.stop());
+    startBtn.addEventListener('click', async () => {
+        recordedChunks = [];
 
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-        });
-    </script>
+        try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({
+                video: true,
+                audio: true
+            });
 
+            video.srcObject = stream;
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = function (e) {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = async function () {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                video.src = URL.createObjectURL(blob);
+                video.controls = true;
+                video.muted = false;
+
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const filename = `recording-${timestamp}.webm`;
+                const formData = new FormData();
+                formData.append('file', blob, filename);
+
+                try {
+                    const response = await fetch('http://localhost:8080/upload', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                        alert('Upload successful!');
+                    } else {
+                        alert('Upload failed: ' + response.statusText);
+                    }
+                } catch (err) {
+                    console.error('Upload error:', err);
+                    alert('Upload error: ' + err.message);
+                }
+
+                recordingIndicator.style.display = 'none';
+            };
+
+            mediaRecorder.start();
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            recordingIndicator.style.display = 'block';
+        } catch (err) {
+            console.error("Error accessing screen:", err);
+            alert("Could not start recording: " + err.message);
+        }
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
+            mediaRecorder.stop();
+        }
+
+        let tracks = video.srcObject?.getTracks();
+        tracks?.forEach(track => track.stop());
+
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        recordingIndicator.style.display = 'none';
+    });
+</script>
 </body>
 </html>

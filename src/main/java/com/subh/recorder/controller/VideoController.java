@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.subh.recorder.Services.SupabaseStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +34,9 @@ public class VideoController {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SupabaseStorageService supabaseStorageService;
 
     private final Path uploadPath = Paths.get("uploads");
     
@@ -61,15 +65,20 @@ public class VideoController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadVideo(@RequestParam("file") MultipartFile file, Principal principal) {
         try {
-            String uploadDir = System.getProperty("user.dir") + "/uploads/";
-            File uploadDirFile = new File(uploadDir);
-            if (!uploadDirFile.exists()) {
-                uploadDirFile.mkdirs();
-            }
+//            String uploadDir = System.getProperty("user.dir") + "/uploads/";
+//            File uploadDirFile = new File(uploadDir);
+//            if (!uploadDirFile.exists()) {
+//                uploadDirFile.mkdirs();
+//            }
+//
+//            String filePath = uploadDir + file.getOriginalFilename();
+//            File dest = new File(filePath);
+//            file.transferTo(dest);
+            File tempFile = File.createTempFile("video", ".webm");
+            file.transferTo(tempFile);
 
-            String filePath = uploadDir + file.getOriginalFilename();
-            File dest = new File(filePath);
-            file.transferTo(dest);
+            String videoUrl = supabaseStorageService.uploadVideo(tempFile, file.getOriginalFilename());
+
 
             if (principal == null) {
                 throw new RuntimeException("No logged-in user");
@@ -80,7 +89,7 @@ public class VideoController {
 
             Video video = new Video();
             video.setFileName(file.getOriginalFilename());
-            video.setFilePath(filePath);
+            video.setFilePath(videoUrl);
             video.setUploadedAt(LocalDateTime.now());
             video.setUser(user);
 

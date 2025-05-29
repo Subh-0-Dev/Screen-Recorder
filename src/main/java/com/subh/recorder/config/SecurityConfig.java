@@ -1,6 +1,7 @@
 package com.subh.recorder.config;
 
 
+import com.subh.recorder.Services.CustomUserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,24 +15,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.subh.recorder.Services.UserServices;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 	
 	@Autowired
-	private UserServices userServices;
+	private CustomUserDetail customUserDetail;
 	
 	@Bean
 	public UserDetailsService userDetailsService() {
-		return userServices;
+		return customUserDetail;
 	}
 	
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
-		provider.setUserDetailsService(userServices);
+		provider.setUserDetailsService(customUserDetail);
 		provider.setPasswordEncoder(passwordEncoder());
 		
 		return provider;

@@ -44,7 +44,7 @@
   <h1>My Recordings</h1>
   <button onclick="location.href='/index'">Back to Recording</button>
 
-  
+
   <div class="video-container" id="videoList"></div>
 
   <script>
@@ -59,15 +59,16 @@
           card.className = 'video-card';
 
           card.innerHTML = `
-        	  <video controls width="600">
-        	    <source src="http://localhost:8080/uploads/${video.fileName}" type="video/webm">
-        	    Your browser does not support the video tag.
-        	  </video>
-        	  <div class="meta">
-        	    ${video.fileName} <br>
-        	    Uploaded at: ${video.uploadedAt.replace('T', ' ').slice(0, 19)}
-        	  </div>
-        	`;
+              <video controls width="600">
+                <source src="${video.filePath}" type="video/webm">
+                <source src="${video.filePath}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+              <div class="meta">
+                ${video.fileName} <br>
+                Uploaded at: ${video.uploadedAt.replace('T', ' ').slice(0, 19)}
+              </div>
+            `;
           container.appendChild(card);
         });
       } catch (err) {
